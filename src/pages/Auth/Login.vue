@@ -1,15 +1,29 @@
 <template>
-  <div>
-    <md-field>
-      <label>Username</label>
-      <md-input v-model="username"></md-input>
-    </md-field>
-    <md-field>
-      <label>Password</label>
-      <md-input v-model="password"></md-input>
-    </md-field>
-    <md-button class="md-raised md-primary" v-on:click="login">Login</md-button>
-  </div>
+  <md-card>
+    <md-card-media>
+      <img src="@/assets/minusz_logo-large.png" />
+    </md-card-media>
+    <md-card-content>
+      <md-field>
+        <label>Email</label>
+        <md-input v-model="email"></md-input>
+      </md-field>
+      <md-field>
+        <label>Password</label>
+        <md-input v-model="password" type="password"></md-input>
+      </md-field>
+      <md-list>
+        <md-list-item v-for="msg in error_messages" :key="msg">
+          <span class="error_msg">{{ msg }}</span>
+        </md-list-item>
+      </md-list>
+    </md-card-content>
+    <md-card-actions>
+      <md-button class="md-raised md-primary login" v-on:click="login"
+        >Login</md-button
+      >
+    </md-card-actions>
+  </md-card>
 </template>
 
 <script>
@@ -20,8 +34,9 @@ export default {
   name: "LoginPage",
   data: function() {
     return {
-      username: "",
-      password: ""
+      email: "",
+      password: "",
+      error_messages: []
     };
   },
   computed: {
@@ -31,14 +46,37 @@ export default {
   },
   methods: {
     login: function() {
+      let self = this;
       let payload = {
-        username: this.username,
+        email: this.email,
         password: this.password
       };
-      store.dispatch("login", payload).then(() => {
-        router.push({ path: "dashboard" });
-      });
+      store
+        .dispatch("login", payload)
+        .then(function() {
+          router.push({ path: "dashboard" });
+        })
+        .catch(function(error) {
+          self.error_messages = error.data.non_field_errors;
+        });
     }
   }
 };
 </script>
+
+<style scoped>
+.md-card {
+  width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+}
+.md-card-media {
+  margin: 20px 10px;
+}
+.login {
+  margin: 0px auto !important;
+}
+.error_msg {
+  color: red;
+}
+</style>
